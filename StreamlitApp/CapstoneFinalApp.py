@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 import os
-import matplotlib.pyplot as plt
 
 
 # The function to make the map based on PhD Opportunities and criteria

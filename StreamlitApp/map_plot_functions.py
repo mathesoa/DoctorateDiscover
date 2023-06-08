@@ -1,7 +1,6 @@
 import folium
-
 from branca.colormap import LinearColormap
-import matplotlib.cm as cm
+
 
 
 def world_rank_map(df):
