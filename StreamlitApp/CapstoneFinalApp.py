@@ -182,66 +182,6 @@ if selected_states:
 
 
 
-import requests
-import configparser
-import tweepy
-
-# Read the bearer token from the config file
-config = configparser.ConfigParser()
-config.read('config.ini')
-bearer_token = config.get('twitter', 'bearer_token')
-
-# Set up Streamlit app layout
-
-st.markdown("---")
-
-# Set up the client, not using authorisation here
-client = tweepy.Client(bearer_token=bearer_token)
-
-st.write("### PhD Opportunities on Twitter in the Last 7 Days!")
-selected_field = st.selectbox("Field of Interest:", df['field'].unique())
-
-
-keyword_path = os.path.join(current_dir, 'Twitter_Field_KeyWords.csv')
-
-key_df = pd.read_csv(keyword_path)
-keywords = key_df[key_df['Category'] == selected_field]['Keyword'].tolist()
-
-query_keywords = ' OR '.join(keywords)
-query = f'"phd opportunities" ({query_keywords})'
-
-tweets = client.search_recent_tweets(
-    query=query,
-    expansions="author_id",
-    user_fields="username",
-    tweet_fields=["context_annotations", "created_at"],
-    max_results=10,
-)
-
-# Create a dictionary to map user IDs to usernames
-usernames = {user.id: user.username for user in tweets.includes["users"]}
-
-tweet_list = []
-
-for tweet in tweets.data:
-    tweet_dict = {}
-    tweet_dict["Username"] = usernames[tweet.author_id]
-    tweet_dict["Text"] = tweet.text
-    tweet_dict["Tweet URL"] = f"https://twitter.com/{usernames[tweet.author_id]}/status/{tweet.id}"
-    tweet_dict["Created At"] = tweet.created_at
-    tweet_list.append(tweet_dict)
-
-# Define tabs
-tabs = st.tabs(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
-
-# Iterate over the tabs and display the tweet information
-for i, (tweet, tab) in enumerate(zip(tweet_list, tabs)):
-    with tab:
-        st.markdown(f"**User:** @ {tweet['Username']}")
-        st.markdown(f"**Tweet:** {tweet['Text']}")
-        st.markdown(f"**Posted:** {tweet['Created At']}")
-        st.write(tweet['Tweet URL'])
-
 
 st.markdown("---")
     
