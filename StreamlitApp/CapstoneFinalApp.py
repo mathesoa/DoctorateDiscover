@@ -10,11 +10,16 @@ from folium.plugins import HeatMap
 
 import requests
 
-# Load the data for the PhDs
-df = pd.read_csv('DataFrameForAPI_newnames.csv')
 
-# Load the world rank data
-df2 = pd.read_csv('World_Rank_Plot.csv')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the file path
+file_path = os.path.join(current_dir, 'DataFrameForAPI_newnames.csv')
+df = pd.read_csv(file_path)
+
+file_path2 = os.path.join(current_dir, 'World_Rank_Plot.csv')
+df2 = pd.read_csv(file_path2)
+
 
 # Set page configuration
 st.set_page_config(
