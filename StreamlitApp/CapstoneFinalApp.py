@@ -1,16 +1,20 @@
 import pandas as pd
 import streamlit as st
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 # The function to make the map based on PhD Opportunities and criteria
-from map_plot_functions import world_rank_map, phd_select_map
+from map_plot_functions import world_rank_map, phd_select_map, generate_box_plots, generate_affordability_box_plot
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the file path
 file_path = os.path.join(current_dir, 'DataFrameForAPI_newnames.csv')
 df = pd.read_csv(file_path)
+df = df.rename(columns={'study_name': 'Project Title', 'summary': 'Description', 'WorldRank': 'World Rank', 
+                        'USARank': 'USA Rank', 'Salary_avg': 'Salary/Stipend', 'State_Avg_Salary': 'State Avg Salary/Stipend','Star': 'Glassdoor Star'})    
 
 file_path2 = os.path.join(current_dir, 'World_Rank_Plot.csv')
 df2 = pd.read_csv(file_path2)
@@ -43,13 +47,11 @@ body {
 
 
 
-
 # Apply custom CSS
 st.write(f'<style>{css}</style>', unsafe_allow_html=True)
 
 
-
-# Sidebar for selection criteria
+# Setting up the sidebar selection criteria
 with st.sidebar:
     st.write("## Select your Field!")
    
@@ -71,7 +73,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    st.write("## Weighted Criteria")
+    st.write("## Find your perfect PhD program, set the weight of importance")
     
     default_states = sorted(df['State'].fillna('Unknown').unique())
     selected_states = st.sidebar.multiselect('Select States:', default_states, default=[])
@@ -94,11 +96,6 @@ st.markdown("TDI Capstone Project by Austyn Matheson")
 st.markdown("---")
 
 
-# Generate the world map
-
-
-
-
 
 # Set up layout
 col1, col2 = st.columns([1.5, 2.5])
@@ -114,7 +111,9 @@ with col1:
 with col2:
     st.write("### The location of the world's top universities")
     st.markdown('<span style="font-size: 10px;">Source: [https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking](https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking)</span>', unsafe_allow_html=True)
-    school_map = world_rank_map(df2)
+
+    # here the map is generated
+    school_map = world_rank_map(df2) 
     st.components.v1.html(school_map._repr_html_(), height=400)
     
     
@@ -122,12 +121,11 @@ st.markdown("---")
 
 
 
-df = df.rename(columns={'study_name': 'Project Title', 'summary': 'Description', 'WorldRank': 'World Rank', 
-                        'USARank': 'USA Rank', 'Salary_avg': 'Salary/Stipend', 'State_Avg_Salary': 'State Avg Salary/Stipend','Star': 'Glassdoor Star'})       
+   
 
-# Show top 20 entries with highest stipend and stipend-field-state for selected field
+# Show field entries
 if selected_field:
-    st.write("### Filtered Programs:")
+    st.write("### See the newest PhD Programs:")
     st.markdown('<span style="font-size: 10px;">Source for USA University Rankings: [https://www.4icu.org/us/](https://www.4icu.org/us/)</span>', unsafe_allow_html=True)
     if (criteria_field == "World Rank") | (criteria_field == "USA Rank") | (criteria_field == "Tuition"):
         filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=True).head(40)
@@ -145,13 +143,14 @@ if selected_field:
     st.markdown('<span style="font-size: 10px;">Source for PhD Stipend/Salaries: [http://glassdoor.com](http://glassdoor.com)</span>', unsafe_allow_html=True)
     
     if (criteria_field == "World Rank") | (criteria_field == "USA Rank") | (criteria_field == "Tuition"):
-        filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=True).head(15)
+        filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=True).head(40)
     else:
-        filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=False).head(15)
+        filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=False).head(40)
     selected_cols = ['Project Title', 'University', 'Tuition', 'Salary/Stipend', 'State Avg Salary/Stipend', 'Required Income', 'Food', 'Housing', 'Transportation','Medical', 'Enough Income']
     st.write(filtered_df[selected_cols])
-    st.components.v1.html(phd_select_map(filtered_df, criteria_field)._repr_html_(), height=600)
     
+    st.components.v1.html(phd_select_map(filtered_df, criteria_field)._repr_html_(), height=600)
+
     
 st.markdown("---")  
     
@@ -255,7 +254,34 @@ st.write("* Scrape Thesis DataBases to collect names of PhD Scholars in order to
 st.markdown("---")
     
 st.write("### Thank you")
-st.write("* austynmatheson@thedataincubator.com")
+st.write("* austyn.matheson@gmail.com")
 st.write("* https://www.linkedin.com/in/austynmatheson/.")
-st.write("* find the project soon on: github.com/mathesoa")
+st.write("* find the project on: github.com/mathesoa/DoctorateDiscover")
 
+st.markdown("---")
+st.write("## Want to know more about your field or state? Check out the interactive graphics below!")
+
+selected = st.selectbox("Check out the stats on your State or 'Field'", ("field", "State"))
+
+if selected: 
+    # Generate violin plots
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+    # Plot Salary/Stipend
+    generate_box_plots(df, xcolumn=selected, ycolumn="Salary/Stipend", ax=axs[0, 0])
+    axs[0, 0].set_title(f'Salary/Stipend by {selected}')
+
+    # Plot Tuition
+    generate_box_plots(df, xcolumn=selected, ycolumn="Tuition", ax=axs[0, 1])
+    axs[0, 1].set_title(f'Tuition by {selected}')
+
+    # Plot Glassdoor Star
+    generate_box_plots(df, xcolumn=selected, ycolumn="Glassdoor Star", ax=axs[1, 0])
+    axs[1, 0].set_title(f'Ranking by {selected}')
+
+    # Plot Affordability
+    generate_affordability_box_plot(df, xcolumn=selected, ax=axs[1, 1])
+    axs[1, 1].set_title(f'Affordability (Salary - Tuition) by {selected}')
+
+    plt.tight_layout()
+    st.pyplot(fig)
