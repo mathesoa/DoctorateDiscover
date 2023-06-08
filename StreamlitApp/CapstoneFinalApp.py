@@ -10,7 +10,7 @@ from map_plot_functions import world_rank_map, phd_select_map, generate_box_plot
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Construct the file path
+# create the file_pate
 file_path = os.path.join(current_dir, 'DataFrameForAPI_newnames.csv')
 df = pd.read_csv(file_path)
 df = df.rename(columns={'study_name': 'Project Title', 'summary': 'Description', 'WorldRank': 'World Rank', 
@@ -28,7 +28,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Add custom CSS
+# Add  CSS
 css = """
 body {
     background-image: url('https://example.com/background.jpg');
@@ -47,7 +47,7 @@ body {
 
 
 
-# Apply custom CSS
+# Apply CSS
 st.write(f'<style>{css}</style>', unsafe_allow_html=True)
 
 
@@ -148,7 +148,7 @@ if selected_field:
         filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=False).head(40)
     selected_cols = ['Project Title', 'University', 'Tuition', 'Salary/Stipend', 'State Avg Salary/Stipend', 'Required Income', 'Food', 'Housing', 'Transportation','Medical', 'Enough Income']
     st.write(filtered_df[selected_cols])
-    
+    st.write("### The location of your field's Universities")
     st.components.v1.html(phd_select_map(filtered_df, criteria_field)._repr_html_(), height=600)
 
     
