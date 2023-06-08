@@ -7,6 +7,7 @@ import re
 import numpy as np
 from folium.features import DivIcon
 from folium.plugins import HeatMap
+import os
 
 import requests
 
