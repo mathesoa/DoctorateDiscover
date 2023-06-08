@@ -87,8 +87,6 @@ with st.sidebar:
     if (weight_rank + weight_tuition + weight_salary) != 1.0:
         st.sidebar.error("Please adjust the weights so their total equals to 1.")
 
-
-        
         
         
 
