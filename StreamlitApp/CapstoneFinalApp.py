@@ -114,10 +114,7 @@ with col1:
 with col2:
     st.write("### The location of the world's top universities")
     st.markdown('<span style="font-size: 10px;">Source: [https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking](https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking)</span>', unsafe_allow_html=True)
-    world_rank_map(df2)
-    fig, ax = plt.subplots(figsize=(10, 6))
     school_map = world_rank_map(df2)
-    
     st.components.v1.html(school_map._repr_html_(), height=400)
     
     
