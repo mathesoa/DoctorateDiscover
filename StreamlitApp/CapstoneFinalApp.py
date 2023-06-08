@@ -3,8 +3,6 @@ import streamlit as st
 import os
 
 # for some reason renderer was empty
-import plotly.io as pio
-pio.renderers.default = 'default'
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -78,9 +76,6 @@ def generate_map(df):
 
 school_map = generate_map(df2)
 
-
-
-import plotly.express as px
 
 def generate_map2(df, criteria):
     # Define a colormap based on the criteria values
@@ -283,7 +278,10 @@ client = tweepy.Client(bearer_token=bearer_token)
 st.write("### PhD Opportunities on Twitter in the Last 7 Days!")
 selected_field = st.selectbox("Field of Interest:", df['field'].unique())
 
-key_df = pd.read_csv("Twitter_Field_KeyWords.csv")
+
+keyword_path = os.path.join(current_dir, 'Twitter_Field_KeyWords.csv')
+
+key_df = pd.read_csv(keyword_path)
 keywords = key_df[key_df['Category'] == selected_field]['Keyword'].tolist()
 
 query_keywords = ' OR '.join(keywords)
