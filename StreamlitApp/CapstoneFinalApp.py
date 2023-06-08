@@ -1,12 +1,11 @@
 import pandas as pd
 import streamlit as st
 import os
+import matplotlib.pyplot as plt
 
-# The function to make the map based on University World Rank
-from generate_map_world_rank import generate_map
 
 # The function to make the map based on PhD Opportunities and criteria
-from generate_map_university import generate_map2
+from map_plot_functions import world_rank_map, phd_select_map
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -96,8 +95,10 @@ st.markdown("TDI Capstone Project by Austyn Matheson")
 st.markdown("---")
 
 
-#Generate the world map
-#school_map = generate_map(df2)
+# Generate the world map
+
+
+
 
 
 # Set up layout
@@ -114,7 +115,11 @@ with col1:
 with col2:
     st.write("### The location of the world's top universities")
     st.markdown('<span style="font-size: 10px;">Source: [https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking](https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking)</span>', unsafe_allow_html=True)
-    #st.components.v1.html(school_map._repr_html_(), height=400)
+    world_rank_map(df2)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    school_map = world_rank_map(df2)
+    
+    st.components.v1.html(school_map._repr_html_(), height=400)
     
     
 st.markdown("---")
@@ -149,7 +154,7 @@ if selected_field:
         filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=False).head(15)
     selected_cols = ['Project Title', 'University', 'Tuition', 'Salary/Stipend', 'State Avg Salary/Stipend', 'Required Income', 'Food', 'Housing', 'Transportation','Medical', 'Enough Income']
     st.write(filtered_df[selected_cols])
-    st.components.v1.html(generate_map2(filtered_df, criteria_field)._repr_html_(), height=600)
+    st.components.v1.html(phd_select_map(filtered_df, criteria_field)._repr_html_(), height=600)
     
     
 st.markdown("---")  
