@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import os
+import plotly.express as px
 
 # for some reason renderer was empty
 import plotly.io as pio
@@ -39,93 +40,13 @@ body {
 }
 """
 
-# Map function
-import plotly.express as px
-
-def generate_map(df):
-    # Define a colormap based on the rank values
-    ranks = df['rank']
-    colorblind_friendly_colors = ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B', '#9013FE']
-
-
-    # Create a map object using Plotly Express
-    fig = px.scatter_geo(
-        df,
-        lat="Latitude",
-        lon="Longitude",
-        hover_name="name",
-        color="rank",
-        color_continuous_scale=colorblind_friendly_colors,
-        range_color=(ranks.min(), ranks.max()),
-        projection="natural earth",
-        #title="University Locations by World Rank",
-    )
-    
-    fig.update_geos(
-        center=dict(lat=20, lon=-20), # Center the map at the specified coordinates
-        projection_scale=2 # Set the zoom level
-    )
-    fig.update_traces(marker=dict(sizemin=40))
-    
-    fig.update_layout(
-    autosize=False,
-    width=650,
-    height=400,
-    )
-    
-    # Return the map object
-    return fig
-
-school_map = generate_map(df2)
 
 
 
-import plotly.express as px
-
-def generate_map2(df, criteria):
-    # Define a colormap based on the criteria values
-    values = df[criteria].sort_values()
-    colorblind_friendly_colors = ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B', '#9013FE']
-
-    # Remove duplicates based on location and study_name
-    df = df.drop_duplicates(subset=['LATITUDE', 'LONGITUDE', 'University'])
-
-    # Format criteria text
-    criteria_text = ' '.join(word.capitalize() for word in criteria.split('_'))
-
-    # Create a map object using Plotly Express
-    fig = px.scatter_geo(
-        df,
-        lat="LATITUDE",
-        lon="LONGITUDE",
-        hover_name="University",
-        size=criteria,
-        color=criteria,
-        color_continuous_scale=colorblind_friendly_colors,
-        range_color=(values.min(), values.max()),
-        projection="natural earth",
-        title=f"Schools by {criteria_text}",
-        text="University",
-        custom_data=[criteria],
-    )
-
-    # Customize hover information
-    fig.update_traces(
-        hovertemplate="<b>%{hovertext}</b><br>{criteria_text}: %{customdata[0]}"
-    )
-    
-    fig.update_geos(
-        center=dict(lat=30, lon=-95), # Center the map at the specified coordinates
-        projection_scale=3.5 # Set the zoom level
-    )
 
 
-    # Return the map object
-    return fig
 
-# Generate the map
-#school_map = generate_map2(df2, "example_criteria")
-#school_map.show()
+
 
 
 
@@ -196,7 +117,7 @@ with col1:
 with col2:
     st.write("### The location of the world's top universities")
     st.markdown('<span style="font-size: 10px;">Source: [https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking](https://www.timeshighereducation.com/world-university-rankings/2023/world-ranking)</span>', unsafe_allow_html=True)
-    st.components.v1.html(school_map._repr_html_(), height=400)
+    #st.components.v1.html(school_map._repr_html_(), height=400)
     
     
 st.markdown("---")
@@ -231,7 +152,7 @@ if selected_field:
         filtered_df = df[df['field'] == selected_field].sort_values(by=criteria_field, ascending=False).head(15)
     selected_cols = ['Project Title', 'University', 'Tuition', 'Salary/Stipend', 'State Avg Salary/Stipend', 'Required Income', 'Food', 'Housing', 'Transportation','Medical', 'Enough Income']
     st.write(filtered_df[selected_cols])
-    st.components.v1.html(generate_map2(filtered_df, criteria_field)._repr_html_(), height=600)
+    #st.components.v1.html(generate_map2(filtered_df, criteria_field)._repr_html_(), height=600)
     
     
 st.markdown("---")  
@@ -283,7 +204,10 @@ client = tweepy.Client(bearer_token=bearer_token)
 st.write("### PhD Opportunities on Twitter in the Last 7 Days!")
 selected_field = st.selectbox("Field of Interest:", df['field'].unique())
 
-key_df = pd.read_csv("Twitter_Field_KeyWords.csv")
+
+keyword_path = os.path.join(current_dir, 'Twitter_Field_KeyWords.csv')
+
+key_df = pd.read_csv(keyword_path)
 keywords = key_df[key_df['Category'] == selected_field]['Keyword'].tolist()
 
 query_keywords = ' OR '.join(keywords)
